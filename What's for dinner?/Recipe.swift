@@ -19,3 +19,7 @@ struct Ingredient: Codable {
     let amount: Double
     let unit: String
 }
+
+struct RecipeResults: Codable {
+    let results: [Recipe]
+}
