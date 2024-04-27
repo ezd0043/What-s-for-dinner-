@@ -12,7 +12,7 @@ import Foundation
 struct RecipeService {
     let apiKey = "576df50975404f929fbcb71e61b60a2e"
     
-    // Fetch a list of recipe summaries
+    // Fetch a list of dishes based on search
     func fetchRecipes(category: String) -> AnyPublisher<[Recipe], Error> {
         let encodedCategory = category.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let urlString = "https://api.spoonacular.com/recipes/complexSearch?query=\(encodedCategory)&apiKey=\(apiKey)"

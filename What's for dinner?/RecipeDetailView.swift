@@ -10,7 +10,7 @@ import Combine
 struct RecipeDetailView: View {
     let recipeId: Int
     @ObservedObject var viewModel: RecipeDetailViewModel
-    @State private var navigationTitle: String = "Recipe Detail" // Initial value
+    @State private var navigationTitle: String = "Recipe Detail" 
 
     init(recipeId: Int) {
         self.recipeId = recipeId
