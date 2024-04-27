@@ -11,7 +11,7 @@ struct Recipe: Codable, Identifiable {
     let title: String
     let image: String
     let instructions: String?
-    let ingredients: [Ingredient]?
+    
 }
 
 struct Ingredient: Codable {

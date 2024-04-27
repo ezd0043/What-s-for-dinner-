@@ -6,14 +6,15 @@
 //
 
 import SwiftUI
+import Combine
 
 struct RecipeListView: View {
     @ObservedObject var viewModel: RecipesViewModel
     var category: String
     
     var body: some View {
-        List(viewModel.detailedRecipes) { recipe in
-            NavigationLink(destination: RecipeDetailView(recipe: recipe)) {
+        List(viewModel.recipes) { recipe in
+            NavigationLink(destination: RecipeDetailView(recipeId: recipe.id)) {
                 RecipeRow(recipe: recipe)
             }
         }
@@ -23,5 +24,6 @@ struct RecipeListView: View {
         }
     }
 }
+
 
 

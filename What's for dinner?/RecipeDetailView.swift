@@ -5,62 +5,81 @@
 //  Created by Emily Denham on 4/24/24.
 //
 import SwiftUI
+import Combine
 
 struct RecipeDetailView: View {
-    var recipe: RecipeDetail
+    let recipeId: Int
+    @ObservedObject var viewModel: RecipeDetailViewModel
+    @State private var navigationTitle: String = "Recipe Detail" // Initial value
+
+    init(recipeId: Int) {
+        self.recipeId = recipeId
+        self.viewModel = RecipeDetailViewModel(recipeId: recipeId)
+    }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
-                
-                
-                // Debugging - to check why recipe isnt showing
-                Text(recipe.title)
-                    .font(.title)
-                    .padding()
-                    .onAppear {
-                        print("Recipe title: \(recipe.title)")
-                    }
-
-                // Instructions
-                if let instructions = recipe.instructions, !instructions.isEmpty {
-                    Text("Instructions")
-                        .font(.headline)
-                        .padding(.top)
-                    Text(instructions)
+                if let recipe = viewModel.recipe {
+                    Text(recipe.title)
+                        .font(.title)
                         .padding()
-                        .onAppear {
-                            print("Instructions: \(instructions)")
-                        }
-                } else {
-                    Text("No instructions provided.")
-                        .padding()
-                        .onAppear {
-                            print("No instructions available for this recipe.")
-                        }
-                }
 
-                // Ingredients
-                if let ingredients = recipe.ingredients, !ingredients.isEmpty {
-                    Text("Ingredients")
-                        .font(.headline)
-                        .padding(.top)
-                    ForEach(ingredients, id: \.name) { ingredient in
-                        Text("\(ingredient.amount) \(ingredient.unit) \(ingredient.name)")
-                            .padding(.bottom, 2)
-                            .onAppear {
-                                print("Ingredient: \(ingredient.name)")
-                            }
+                    if let instructions = recipe.instructions, !instructions.isEmpty {
+                        Text("Instructions")
+                            .font(.headline)
+                            .padding(.top)
+                        Text(instructions)
+                            .padding()
+                    } else {
+                        Text("No instructions provided.")
+                            .padding()
                     }
                 } else {
-                    Text("No ingredients listed.")
+                    Text("Loading...")
                         .padding()
-                        .onAppear {
-                            print("No ingredients available for this recipe.")
-                        }
                 }
             }
         }
-        .navigationTitle(recipe.title)
+        .navigationTitle(navigationTitle)
+        .onAppear {
+            viewModel.loadRecipeDetail()
+            if let recipeTitle = viewModel.recipe?.title {
+                navigationTitle = recipeTitle
+            }
+        }
+    }
+}
+
+
+class RecipeDetailViewModel: ObservableObject {
+    @Published var recipe: Recipe?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    
+    private var recipeService = RecipeService()
+    private var cancellables = Set<AnyCancellable>()
+    private let recipeId: Int
+
+    init(recipeId: Int) {
+        self.recipeId = recipeId
+    }
+    
+    func loadRecipeDetail() {
+        isLoading = true
+        errorMessage = nil
+        
+        recipeService.fetchRecipeDetail(recipeId: recipeId)
+            .sink(receiveCompletion: { [weak self] completion in
+                self?.isLoading = false
+                if case let .failure(error) = completion {
+                    self?.errorMessage = error.localizedDescription
+                    print("Error fetching recipe detail: \(error)")
+                }
+            }, receiveValue: { [weak self] recipe in
+                self?.recipe = recipe
+                print("Recipe detail loaded: \(recipe.title)")
+            })
+            .store(in: &cancellables)
     }
 }

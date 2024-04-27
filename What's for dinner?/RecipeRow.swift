@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct RecipeRow: View {
-    let recipe: RecipeDetail
+    let recipe: Recipe
 
     var body: some View {
         HStack {
@@ -34,3 +34,4 @@ struct RecipeRow: View {
         }
     }
 }
+
